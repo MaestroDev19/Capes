@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "../../supabase/server";
+import { createClient } from "../supabase/server";
 import { redirect } from "next/navigation";
 
 export async function signInWithTwitch() {
@@ -23,4 +23,14 @@ export async function signInWithTwitch() {
   }
 
   redirect("/error");
+}
+
+export async function signOut() {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    console.error("Error during sign-out:", error.message);
+    redirect("/error");
+  }
+  redirect("/login");
 }

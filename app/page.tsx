@@ -1,8 +1,55 @@
 import Image from "next/image";
+import { createClient } from "../supabase/server";
+import { signOut } from "../auth/action";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+/**
+ * Fetches the current authenticated user from Supabase.
+ * @returns The user object if authenticated, otherwise null.
+ */
+async function getUser() {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  return data.user;
+}
+
+export default async function Home() {
+  const user = await getUser();
+
+  // Protect the page: redirect to /login if not authenticated
+  if (!user) {
+    redirect("/login");
+  }
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+      <header className="row-start-1 w-full flex justify-end items-center px-2 py-2">
+        <div className="flex items-center gap-4">
+          {user.user_metadata?.avatar_url ? (
+            <Image
+              src={user.user_metadata.avatar_url}
+              alt="User avatar"
+              width={40}
+              height={40}
+              className="rounded-full border"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-lg font-bold text-gray-700">
+              {user.user_metadata?.name
+                ? user.user_metadata.name[0]
+                : user.email?.[0]?.toUpperCase() || "U"}
+            </div>
+          )}
+          <form action={signOut}>
+            <button
+              type="submit"
+              className="rounded-md bg-red-500 text-white px-3 py-1 text-sm font-medium hover:bg-red-600 transition"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
+      </header>
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <Image
           className="dark:invert"
