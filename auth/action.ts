@@ -23,6 +23,7 @@ export async function signInWithTwitch() {
   }
 
   redirect("/error");
+ 
 }
 
 export async function signOut() {

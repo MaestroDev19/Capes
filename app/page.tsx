@@ -2,6 +2,7 @@ import Image from "next/image";
 import { createClient } from "../supabase/server";
 import { signOut } from "../auth/action";
 import { redirect } from "next/navigation";
+import { ensureProfileWithDefaults, isProfileComplete } from "@/lib/profile";
 
 /**
  * Fetches the current authenticated user from Supabase.
@@ -19,6 +20,12 @@ export default async function Home() {
   // Protect the page: redirect to /login if not authenticated
   if (!user) {
     redirect("/login");
+  }
+
+  // Ensure profile row exists with default bio, and gate if incomplete
+  const profile = await ensureProfileWithDefaults(user.id);
+  if (!isProfileComplete(profile)) {
+    redirect("/complete-profile");
   }
 
   return (
