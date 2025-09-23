@@ -1,295 +1,191 @@
-# Capes - Fandom Social Platform
+## CAPES — Fandom Social Platform (MVP/POC)
 
-A modern social platform built for fandoms and communities, featuring event discovery, RSVP management, and community building tools.
+CAPES is an event‑centric social app for fans of games, anime, movies, and comics to discover local events and meet people in real life. It focuses on simple discovery and RSVP flows over heavy social features, so organizers can list events quickly and fans can find what’s happening nearby. Profiles capture just enough context (name, city, interests) to personalize results and enable lightweight communities.
 
-## 🚀 Features
+This repository contains the Next.js (TypeScript) frontend and serverless API routes for the MVP defined in the PRD. It integrates with an external Event API for event data/RSVPs and uses Supabase for email/password authentication and minimal profile storage.
 
-- **Twitch OAuth Authentication** - Secure login with Twitch social authentication
-- **Event Discovery** - Browse and discover events from external APIs
-- **RSVP Management** - Join events and manage your RSVPs
-- **Community Building** - Create and join fandom communities
-- **Modern UI** - Built with shadcn/ui and Tailwind CSS
-- **Type Safety** - Full TypeScript support throughout
-- **Real-time Updates** - Live notifications and updates
+What users can do:
+- Browse and filter upcoming fandom events by city, date, and tags
+- View event details and RSVP; receive confirmation and reminder emails (MVP)
+- Create and join public communities around specific fandoms
+- Report inappropriate content and block users for safety
+See also:
+- PRD: ../prd-fandom-social-platform.md
+- Tasks checklist: ../tasks/tasks-prd-fandom-social-platform.md
 
-## 🛠️ Tech Stack
+### Features (MVP scope)
+- Auth and profiles: email/password (Supabase), display name, avatar, interests, city
+- Events: create, list, filter by city/date/fandom; event detail; RSVP/un-RSVP
+- Communities (lightweight): create/join public communities, member list
+- Safety: report content/user, block user, basic admin review queue
+- Privacy: profile and event visibility controls
 
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS v4
-- **UI Components**: shadcn/ui
-- **Authentication**: Supabase Auth with Twitch OAuth
-- **Database**: Supabase (PostgreSQL)
-- **Package Manager**: Bun
-- **Icons**: Lucide React
+### Tech Stack
+- Next.js App Router (React Server Components), TypeScript
+- Tailwind CSS v4, shadcn/ui primitives (Radix under the hood)
+- Supabase Auth (email/password), minimal profile storage
+- Serverless API routes (proxy to external Event API)
+- Bun as the package runner
 
-## 📋 Prerequisites
+---
 
-- [Bun](https://bun.sh/) (latest version)
-- [Node.js](https://nodejs.org/) 18+ (if not using Bun)
-- [Supabase](https://supabase.com/) account
-- [Twitch Developer](https://dev.twitch.tv/) account
+## Getting Started
 
-## 🚀 Getting Started
+### Prerequisites
+- Bun installed: https://bun.sh (recommended ≥ 1.1)
+- Node.js (optional, not required to run, but helpful for tooling): ≥ 18
+- Supabase project with email/password auth enabled
 
-### 1. Clone the Repository
-
-```bash
-git clone <your-repo-url>
-cd capes
-```
-
-### 2. Install Dependencies
-
+### 1) Install dependencies
 ```bash
 bun install
 ```
 
-### 3. Environment Setup
-
-Create a `.env.local` file in the root directory:
+### 2) Configure environment variables
+Create a `.env.local` in `capes/` based on the template below.
 
 ```env
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE=
 
-# Twitch OAuth
-TWITCH_CLIENT_ID=your-twitch-client-id
-TWITCH_CLIENT_SECRET=your-twitch-client-secret
+# External Event API
+EVENT_API_BASE_URL=https://fastapi-backend-e0m2.onrender.com
+EVENT_API_KEY=
 
-# Optional: Site URL for OAuth redirects
-NEXT_PUBLIC_SITE_URL=http://localhost:3000
+# Email provider (optional for MVP if using Supabase emails only)
+EMAIL_PROVIDER=
+EMAIL_API_KEY=
+EMAIL_FROM=
 ```
 
-### 4. Supabase Setup
+Notes:
+- `EVENT_API_BASE_URL` defaults to the value in the PRD; keep it overrideable.
+- If the external API does not require an API key, leave `EVENT_API_KEY` empty.
 
-1. Create a new project in [Supabase](https://supabase.com/)
-2. Go to Authentication > Providers
-3. Enable Twitch provider and add your Twitch credentials
-4. Add redirect URL: `http://localhost:3000/auth/callback`
-5. Create a `profiles` table with the following schema:
-
-```sql
-CREATE TABLE profiles (
-  id UUID REFERENCES auth.users(id) PRIMARY KEY,
-  username TEXT UNIQUE NOT NULL,
-  full_name TEXT,
-  avatar_url TEXT,
-  bio TEXT,
-  fandoms JSONB,
-  interests JSONB,
-  country TEXT,
-  event_count INTEGER DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Enable RLS
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-
--- Create policies
-CREATE POLICY "Users can view all profiles" ON profiles FOR SELECT USING (true);
-CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
-CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-```
-
-### 5. Twitch OAuth Setup
-
-1. Go to [Twitch Developer Console](https://dev.twitch.tv/console/apps)
-2. Create a new application
-3. Set OAuth Redirect URL to: `https://your-supabase-project.supabase.co/auth/v1/callback`
-4. Copy Client ID and Client Secret to your `.env.local`
-
-### 6. Run the Development Server
-
+### 3) Run the app
 ```bash
+# Dev server (Turbopack)
 bun run dev
+
+# Type-check and lint (recommended during development)
+bun run type-check
+bun run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## 📁 Project Structure
-
-```
-capes/
-├── app/                    # Next.js App Router
-│   ├── auth/              # Authentication routes
-│   │   └── callback/      # OAuth callback handler
-│   ├── error/             # Error pages
-│   ├── login/             # Login page
-│   ├── globals.css        # Global styles
-│   ├── layout.tsx         # Root layout
-│   └── page.tsx           # Home page
-├── components/            # React components
-│   └── ui/               # shadcn/ui components
-│       ├── button.tsx
-│       ├── input.tsx
-│       ├── label.tsx
-│       ├── select.tsx
-│       ├── dialog.tsx
-│       ├── toast.tsx
-│       ├── toaster.tsx
-│       └── use-toast.ts
-├── lib/                   # Utility libraries
-│   ├── providers.tsx      # Theme and toast providers
-│   └── utils.ts          # Utility functions
-├── supabase/             # Supabase client configuration
-│   ├── client.ts         # Browser client
-│   ├── server.ts         # Server client
-│   └── middleware.ts     # Middleware client
-├── auth/                 # Legacy auth routes (to be removed)
-├── middleware.ts         # Next.js middleware
-├── data-types.ts         # TypeScript type definitions
-├── components.json       # shadcn/ui configuration
-├── eslint.config.mjs     # ESLint configuration
-├── next.config.ts        # Next.js configuration
-├── postcss.config.mjs    # PostCSS configuration
-├── tailwind.config.ts    # Tailwind CSS configuration
-└── package.json          # Dependencies and scripts
-```
-
-## 🎨 UI Components
-
-The project uses shadcn/ui components with custom theming:
-
-- **Button** - Various variants and sizes
-- **Input** - Form input fields
-- **Label** - Form labels
-- **Select** - Dropdown selections
-- **Dialog** - Modal dialogs
-- **Toast** - Notification system
-
-## 🔐 Authentication Flow
-
-1. User clicks "Continue with Twitch" on login page
-2. Server action redirects to Twitch OAuth
-3. User authenticates with Twitch
-4. Twitch redirects back to `/auth/callback`
-5. Callback handler exchanges code for session
-6. User is redirected to home page with active session
-
-## 🗄️ Database Schema
-
-### Profiles Table
-
-| Column | Type | Description |
-|--------|------|-------------|
-| id | UUID | Primary key, references auth.users |
-| username | TEXT | Unique username |
-| full_name | TEXT | Display name |
-| avatar_url | TEXT | Profile picture URL |
-| bio | TEXT | User biography |
-| fandoms | JSONB | Array of fandom data |
-| interests | JSONB | Array of interest data |
-| country | TEXT | User's country |
-| event_count | INTEGER | Number of events attended |
-| created_at | TIMESTAMPTZ | Account creation time |
-| updated_at | TIMESTAMPTZ | Last update time |
-
-### JSONB Data Types
-
-```typescript
-interface FandomData {
-  id: string;
-  name: string;
-  description?: string;
-  tags?: string[];
-  category?: string;
-  popularity?: number;
-  created_at?: string;
-}
-
-interface InterestData {
-  id: string;
-  name: string;
-  category?: string;
-  level?: 'beginner' | 'intermediate' | 'advanced';
-  tags?: string[];
-  created_at?: string;
-}
-```
-
-## 🚀 Available Scripts
-
+Build and start:
 ```bash
-# Development
-bun run dev          # Start development server
-bun run build        # Build for production
-bun run start        # Start production server
-
-# Code Quality
-bun run lint         # Run ESLint
-bun run lint:fix     # Run ESLint with auto-fix
-bun run type-check   # Run TypeScript type checking
+bun run build
+bun run start
 ```
-
-## 🔧 Configuration
-
-### Tailwind CSS
-
-The project uses Tailwind CSS v4 with custom theme configuration in `app/globals.css`. The theme includes:
-
-- Light and dark mode support
-- Custom color palette
-- Typography settings
-- Component-specific styling
-
-### ESLint
-
-ESLint is configured with Next.js and TypeScript rules. Configuration is in `eslint.config.mjs`.
-
-### Supabase
-
-Supabase clients are configured for different environments:
-
-- **Browser Client**: For client-side operations
-- **Server Client**: For server-side operations
-- **Middleware Client**: For middleware operations
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy!
-
-### Environment Variables for Production
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your-production-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-production-supabase-anon-key
-TWITCH_CLIENT_ID=your-twitch-client-id
-TWITCH_CLIENT_SECRET=your-twitch-client-secret
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [Next.js](https://nextjs.org/) for the amazing React framework
-- [Supabase](https://supabase.com/) for authentication and database
-- [shadcn/ui](https://ui.shadcn.com/) for beautiful UI components
-- [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
-- [Bun](https://bun.sh/) for fast package management
-
-## 📞 Support
-
-If you have any questions or need help, please open an issue on GitHub.
 
 ---
 
-Built with ❤️ for the fandom community
+## Project Structure
+
+Key directories and files:
+- `app/` — App Router pages, layouts, and server actions
+- `components/` — UI primitives and composite components (shadcn/ui based)
+- `lib/` — providers, utilities, and client helpers (e.g., Supabase)
+- `supabase/` — Supabase SSR helpers and middleware
+- `auth/` and `app/auth` — authentication actions and routes
+- `public/` — static assets
+- `middleware.ts` — auth/session-related and routing middleware
+- `next.config.ts`, `postcss.config.mjs`, `eslint.config.mjs`, `tsconfig.json` — tooling
+
+Refer to the task checklist for suggested additional files that may be added: ../tasks/tasks-prd-fandom-social-platform.md
+
+---
+
+## Environment & Configuration
+
+Add a `.env.local` as described above. Common variables:
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE`
+- `EVENT_API_BASE_URL`, `EVENT_API_KEY`
+- `EMAIL_PROVIDER`, `EMAIL_API_KEY`, `EMAIL_FROM`
+
+Tailwind v4 is already configured via PostCSS. shadcn/ui primitives reside under `components/ui/*`.
+
+---
+
+## Scripts
+
+From `package.json`:
+- `bun run dev` — start Next.js dev server (Turbopack)
+- `bun run build` — production build (Turbopack)
+- `bun run start` — start production server
+- `bun run lint` — run ESLint
+- `bun run lint:fix` — auto-fix lint issues
+- `bun run type-check` — TypeScript type checking
+
+---
+
+## Authentication (Supabase)
+
+- Enable email/password in your Supabase project
+- Configure SMTP (Supabase-managed email is sufficient for MVP)
+- Provide the three Supabase env vars
+- The app uses SSR helpers under `supabase/` and auth actions under `auth/`
+
+Route protection: certain pages should redirect unauthenticated users. See `middleware.ts` and auth actions.
+
+---
+
+## External Event API Integration
+
+- Base URL: `https://fastapi-backend-e0m2.onrender.com`
+- Docs: `https://fastapi-backend-e0m2.onrender.com/docs`
+- Intended endpoints (subject to API docs):
+  - GET `/events` — list with filters: `city`, `start_date`, `end_date`, `tag`
+  - GET `/events/{id}` — event detail
+  - POST `/events` — create event (organizers)
+  - POST `/events/{id}/rsvp` — RSVP/un-RSVP (or a local workaround if not available)
+
+Integration strategy:
+- Frontend calls our Next.js API routes; server routes proxy to the external API
+- Cache minimal event metadata locally if needed; respect external API as source of truth
+- On RSVP success, optionally send confirmation email (provider TBD)
+
+---
+
+## Development Notes
+
+- UI components: see `components/ui/*` and `components/navigation.tsx`
+- Global providers and theming: `lib/providers.tsx`
+- Profile context and helpers: `lib/profileContext.tsx`, `lib/profile.ts`
+- Supabase helpers: `supabase/*`
+- App pages of interest: `app/page.tsx`, `app/login/page.tsx`, `app/complete-profile/*`
+
+Quality:
+- Prefer TypeScript across the codebase
+- Run `bun run type-check` and `bun run lint` before commits
+- Follow component composition and accessibility best practices (Radix UI)
+
+---
+
+## Roadmap & Tasks
+
+The living task list is maintained here:
+- ../tasks/tasks-prd-fandom-social-platform.md
+
+High-level phases (from the PRD):
+- Phase 0: design system, schema, auth skeleton, event list/create
+- Phase 1: event detail/RSVP, email confirmations, community pages
+- Phase 2: reporting/blocking, admin queue, polish, soft launch
+
+---
+
+## Contributing
+
+Contributions are welcome. Please:
+- Keep changes scoped and well-typed
+- Add or update small unit tests where applicable (e.g., lib utilities)
+- Ensure `bun run type-check` and `bun run lint` pass locally
+
+---
+
+## License
+
+Specify your license here (e.g., MIT). If omitted, the project is proprietary by default.
+
