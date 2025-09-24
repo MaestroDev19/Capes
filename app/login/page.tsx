@@ -1,4 +1,4 @@
-import { signInWithTwitch } from "../auth/callback/action";
+import { signInWithTwitch } from "../auth/action";
 
 export default function LoginPage() {
   return (

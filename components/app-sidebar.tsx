@@ -1,7 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import { BookOpen, Bot, Frame, LifeBuoy, Map, PieChart, Send, Settings2, SquareTerminal } from "lucide-react"
+import { BookOpen, Bot, Frame, LifeBuoy, Map, PieChart, Send, Settings2, SquareTerminal,House } from "lucide-react"
 
 import { NavMain } from "@/components/app-main"
 import { NavProjects } from "@/components/app-projects"
@@ -10,74 +10,64 @@ import { NavUser } from "@/components/app-user"
 import { Sidebar, SidebarContent, SidebarHeader } from "@/components/ui/sidebar"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
+  navSecondary: [
     {
-      title: "Playground",
+      title: "Home",
+      url: "/",
+      icon: House,
+    },
+    {
+      title: "Feedback",
       url: "#",
+      icon: Send,
+    },
+  ],
+  navMain: [ {
+    title: "Home",
+    url: "/",
+    icon: House,
+    isActive: true,
+  },
+    {
+      title: "Fandom",
+      url: "/",
       icon: SquareTerminal,
       isActive: true,
       items: [
         {
           title: "History",
-          url: "#",
+          url: "/",
         },
         {
           title: "Starred",
-          url: "#",
+          url: "/",
         },
         {
           title: "Settings",
-          url: "#",
+          url: "/",
         },
       ],
     },
     {
-      title: "Models",
-      url: "#",
+      title: "Events",
+      url: "/events",
       icon: Bot,
       items: [
         {
-          title: "Genesis",
-          url: "#",
+          title: "All Events",
+          url: "/events",
         },
         {
-          title: "Explorer",
-          url: "#",
+          title: "My RSVPs",
+          url: "/events", // placeholder
         },
         {
-          title: "Quantum",
-          url: "#",
+          title: "Create Event",
+          url: "/events", // placeholder
         },
       ],
     },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
+    
     {
       title: "Settings",
       url: "#",
@@ -102,46 +92,28 @@ const data = {
       ],
     },
   ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
+
+ 
+}
+interface SidebarUser {
+  id: string
+  email?: string
+  user_metadata?: {
+    name?: string
+    avatar_url?: string
+  }
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar(
+  { user, ...props }: { user: SidebarUser } & React.ComponentProps<typeof Sidebar>
+) {
   return (
     <Sidebar className="top-(--header-height) h-[calc(100svh-var(--header-height))]!" {...props}>
       <SidebarHeader>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
     </Sidebar>
