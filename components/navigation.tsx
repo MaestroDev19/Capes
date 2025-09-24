@@ -42,41 +42,42 @@ export function Navigation({ user }: NavigationProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4">
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary">
-            <span className="text-lg font-bold text-white">C</span>
-          </div>
-          <span className="text-xl font-bold text-gradient">Capes</span>
-        </Link>
+        <nav className="container flex h-16 items-center px-4 mx-auto">
+        {/* Logo - Left aligned */}
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="text-xl font-bold text-gradient">Capes</span>
+          </Link>
+        </div>
 
-        {/* Desktop Navigation */}
-        <NavigationMenu className="hidden md:flex">
-          <NavigationMenuList>
-            {navigationItems.map((item) => (
-              <NavigationMenuItem key={item.name}>
-                <NavigationMenuLink asChild>
-                  <Link
-                    href={item.href}
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    <item.icon className="mr-2 h-4 w-4" />
-                    {item.name}
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            ))}
-          </NavigationMenuList>
-        </NavigationMenu>
+        {/* Desktop Navigation - Centered */}
+        <div className="flex-1 flex justify-center">
+          <NavigationMenu className="hidden md:flex">
+            <NavigationMenuList>
+              {navigationItems.map((item) => (
+                <NavigationMenuItem key={item.name}>
+                  <NavigationMenuLink asChild>
+                    <Link
+                      href={item.href}
+                      className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      <item.icon className="mr-2 h-4 w-4" />
+                      {item.name}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
 
-        {/* User Menu */}
+        {/* User Menu - Right aligned */}
         <div className="flex items-center space-x-4">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10">
+                  <Avatar className="h-8 w-8">
                     <AvatarImage src={user.user_metadata?.avatar_url || "/placeholder.svg"} alt="User avatar" />
                     <AvatarFallback className="gradient-primary text-white">{userInitial}</AvatarFallback>
                   </Avatar>
@@ -155,7 +156,7 @@ export function Navigation({ user }: NavigationProps) {
             </SheetContent>
           </Sheet>
         </div>
-      </div>
+      </nav>
     </header>
   )
 }
