@@ -9,12 +9,12 @@ import { cn } from "@/lib/utils"
 
 export type EventFilterState = {
   query: string
-  city: string | null
+  country: string | null
   fandom: string | null
   date: string | null
 }
 
-const cities = ["San Francisco", "Seattle", "New York"]
+const countries = ["United States", "Canada", "United Kingdom", "Germany", "France", "Italy", "Spain", "Netherlands", "Sweden", "Norway", "Denmark", "Finland", "Poland", "Russia", "Turkey", "Egypt", "Kenya", "Ghana", "Morocco", "Saudi Arabia", "United Arab Emirates"]
 const fandoms = ["Cyberpunk 2077", "Zelda", "Marvel"]
 
 type Props = {
@@ -26,13 +26,13 @@ type Props = {
 export function EventFilters({ className, onApply, onReset }: Props) {
   const [filters, setFilters] = useState<EventFilterState>({
     query: "",
-    city: null,
+    country: null,
     fandom: null,
     date: null,
   })
 
   const isActive = useMemo(() => {
-    return !!(filters.query || filters.city || filters.fandom || filters.date)
+    return !!(filters.query || filters.country || filters.fandom || filters.date)
   }, [filters])
 
   return (
@@ -45,14 +45,14 @@ export function EventFilters({ className, onApply, onReset }: Props) {
         />
       </div>
       <Select
-        value={filters.city ?? undefined}
+        value={filters.country ?? undefined}
         onValueChange={(v) => setFilters((f) => ({ ...f, city: v }))}
       >
         <SelectTrigger>
-          <SelectValue placeholder="City" />
+            <SelectValue placeholder="Country" />
         </SelectTrigger>
         <SelectContent>
-          {cities.map((c) => (
+          {countries.map((c) => (
             <SelectItem key={c} value={c}>
               {c}
             </SelectItem>
@@ -92,7 +92,7 @@ export function EventFilters({ className, onApply, onReset }: Props) {
           variant={isActive ? "default" : "secondary"}
           aria-label="Reset filters"
           onClick={() => {
-            setFilters({ query: "", city: null, fandom: null, date: null })
+            setFilters({ query: "", country: null, fandom: null, date: null })
             onReset?.()
           }}
         >

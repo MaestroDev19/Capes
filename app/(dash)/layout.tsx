@@ -4,6 +4,7 @@ import { ensureProfileWithDefaults, isProfileComplete } from "@/lib/profile"
 import { SiteHeader } from "@/components/site-header"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarRight } from "@/components/sidebar-right"
 
 async function getUser() {
   const supabase = await createClient()
@@ -23,7 +24,7 @@ export default async function DashLayout({
   if (!isProfileComplete(profile)) redirect("/complete-profile")
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-sm">
       <div className="[--header-height:calc(--spacing(14))]">
         <SidebarProvider className="flex flex-col">
           <SiteHeader />
@@ -32,7 +33,9 @@ export default async function DashLayout({
             <SidebarInset>
               <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
             </SidebarInset>
+           
           </div>
+
         </SidebarProvider>
       </div>
     </div>
